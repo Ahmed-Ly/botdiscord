@@ -1,0 +1,22 @@
+<meta>
+	<info name ="bot discord" description="bot discord" version="1.0" type="script" author="Ahmed Ly"/>
+    <script src="s.lua" type="server" />
+    <export function="getPlayerList" http="true"  />
+    <export function="kickPlayerByName" http="true"  />
+    <export function="banPlayerByName" http="true"  />
+    <export function="getPlayersMoney" http="true"  />
+    <export function="setPlayerMoneyByName" http="true"  />
+    <export function="setPlayerPos" http="true"  />
+    <export function="getPlayerPos" http="true"  />
+    <export function="getPlayerSkins" http="true"  />
+    <export function="setSkinPlayer" http="true"  />
+    <export function="givePlayerCar" http="true"  />
+    <export function="getPlayerVehicle" http="true"  />
+    <export function="setPlayerWarpToPlayer" http="true"  />
+    <export function="getPlayerHealth" http="true"  />
+    <export function="setAdmin" http="true"  />
+    <export function="RemoveAdmin" http="true"  />
+    <export function="getPlayerIPs" http="true"  />
+    <export function="getPlayerSerials" http="true"  />
+    <export function="getPlayerAccountName" http="true"  />
+</meta>
