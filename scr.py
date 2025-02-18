@@ -4,21 +4,40 @@ from lib import MTA
 import json
 from flask import Flask, request,jsonify
 import threading
+import configparser
 
 # Set up intents and initialize the bot
 intents = discord.Intents.default()
 intents.message_content = True  # Enable message content intent
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+    # Read values from config file
+usernameconfig = config['MTA']['username']
+passwrodconfig = config['MTA']['password']
+hostconfig = config['MTA']['host']
+portconfig = int(config['MTA']['port'])
+hostconfig = config['MTA']['host']
+resourceconfig = config['MTA']['resource']
+
+
+
+
 # Initialize your MTA object with your server credentials
-mta = MTA(username='username', password='password', host='localhost', port='22005')
+mta = MTA(username=usernameconfig, password=passwrodconfig, host=hostconfig, port=portconfig)
+if mta: 
+    print("✅ Connected to MTA server.")
+else:
+    print("❌ Failed to connect to MTA server.")
 
 # =======================================================================
 # Command: !players
 @bot.command(name='players')
 @commands.has_role('Admin')
 async def get_players(ctx):
-    response = mta.callFunction('botpython', 'getPlayerList')
+    response = mta.callFunction(resourceconfig, 'getPlayerList')
     if response:
         # Flatten the nested list and join into a string
         flat_list = [item for sublist in response for item in sublist]
@@ -36,7 +55,7 @@ async def kick(ctx, player_name: str = None, reason: str = None):
         await ctx.send("⚠️ Please provide both the player name and a reason. Usage: !kick <player_name> <reason>")
         return
 
-    response = mta.callFunction('botpython', 'kickPlayerByName', player_name, reason)
+    response = mta.callFunction(resourceconfig, 'kickPlayerByName', player_name, reason)
     if isinstance(response, list):
         response = ' '.join(response)
     await ctx.send(response)
@@ -50,7 +69,7 @@ async def ban(ctx, player_name: str = None, reason: str = None):
         await ctx.send("⚠️ Please provide both the player name and a reason. Usage: !ban <player_name> <reason>")
         return
 
-    response = mta.callFunction('botpython', 'banPlayerByName', player_name, reason)
+    response = mta.callFunction(resourceconfig, 'banPlayerByName', player_name, reason)
     if isinstance(response, list):
         response = ' '.join(response)
     await ctx.send(response)
@@ -60,7 +79,7 @@ async def ban(ctx, player_name: str = None, reason: str = None):
 @bot.command(name='playersmoney')
 @commands.has_role('Admin')
 async def get_players_money(ctx):
-    response = mta.callFunction('botpython', 'getPlayersMoney')
+    response = mta.callFunction(resourceconfig, 'getPlayersMoney')
     # If the response is a list with one element that is a dict, extract the dict
     if isinstance(response, list) and len(response) == 1 and isinstance(response[0], dict):
         response = response[0]
@@ -81,7 +100,7 @@ async def give_money(ctx, player_name: str = None, money: int = None):
         await ctx.send("⚠️ Please provide both the player's name and money amount. Usage: !givemoney <player_name> <money>")
         return
 
-    response = mta.callFunction('botpython', 'setPlayerMoneyByName', player_name, money)
+    response = mta.callFunction(resourceconfig, 'setPlayerMoneyByName', player_name, money)
     if isinstance(response, list):
         response_text = response[0]
     else:
@@ -97,7 +116,7 @@ async def set_player_pos(ctx, player_name: str, x: float, y: float, z: float):
         await ctx.send("⚠️ Please provide the player's name and coordinates. Usage: !setpos <player_name> <x> <y> <z>")
         return
 
-    response = mta.callFunction('botpython', 'setPlayerPos', player_name, x, y, z)
+    response = mta.callFunction(resourceconfig, 'setPlayerPos', player_name, x, y, z)
     if response:
         await ctx.send(f"Player {player_name} has been moved to position ({x}, {y}, {z}).")
     else:
@@ -112,7 +131,7 @@ async def get_player_pos(ctx, player_name: str):
         await ctx.send("⚠️ Please provide the player's name. Usage: !getpos <player_name>")
         return
 
-    response = mta.callFunction('botpython', 'getPlayerPos', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerPos', player_name)
     if response:
         await ctx.send(response[0])
     else:
@@ -127,7 +146,7 @@ async def get_player_skin(ctx, player_name: str):
         await ctx.send("⚠️ Please provide the player's name. Usage: !getskin <player_name>")
         return
 
-    response = mta.callFunction('botpython', 'getPlayerSkins', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerSkins', player_name)
     if response:
         await ctx.send(response[0])
     else:
@@ -142,7 +161,7 @@ async def set_player_skin(ctx, player_name: str, skin_id: int):
         await ctx.send("⚠️ Please provide both the player's name and the skin ID. Usage: !setskin <player_name> <skin_id>")
         return
 
-    response = mta.callFunction('botpython', 'setSkinPlayer', player_name, skin_id)
+    response = mta.callFunction(resourceconfig, 'setSkinPlayer', player_name, skin_id)
     if response:
         await ctx.send(response[0])
     else:
@@ -158,7 +177,7 @@ async def give_car(ctx, player_name: str, car_id: int):
         return
     
     # Call MTA function (this should be your actual MTA function to create the car)
-    response = mta.callFunction('botpython', 'givePlayerCar', player_name, car_id)
+    response = mta.callFunction(resourceconfig, 'givePlayerCar', player_name, car_id)
 
     # If response is a list, remove the square brackets by accessing the first element
     if isinstance(response, list):
@@ -176,7 +195,7 @@ async def get_car(ctx, player_name: str):
         return
     
     # Call MTA function to get the player's vehicle
-    response = mta.callFunction('botpython', 'getPlayerVehicle', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerVehicle', player_name)
 
     # If response is a list, access the first element
     if isinstance(response, list):
@@ -194,7 +213,7 @@ async def warp_to(ctx, target_player_name: str, player_name: str):
         return
     
     # Call MTA function to warp the player to the target's position
-    response = mta.callFunction('botpython', 'setPlayerWarpToPlayer', player_name, target_player_name)
+    response = mta.callFunction(resourceconfig, 'setPlayerWarpToPlayer', player_name, target_player_name)
 
     # If response is a list, access the first element
     if isinstance(response, list):
@@ -213,7 +232,7 @@ async def get_weapon(ctx, player_name: str):
     
     try:
         # Call MTA function to get the player's weapon ID
-        response = mta.callFunction('botpython', 'getPlayerWeapons', player_name)
+        response = mta.callFunction(resourceconfig, 'getPlayerWeapons', player_name)
 
 
         # Check if the response is empty
@@ -243,7 +262,7 @@ async def get_health(ctx, player_name: str):
     
     try:
         # Call MTA function to get the player's health
-        response = mta.callFunction('botpython', 'getPlayerHealth', player_name)
+        response = mta.callFunction(resourceconfig, 'getPlayerHealth', player_name)
 
 
         # Check if the response is empty or indicates the player was not found
@@ -272,14 +291,14 @@ def is_admin():
 @bot.command(name='setadmin')
 @is_admin()
 async def set_admin(ctx, player_name: str, acl_name: str = "Admin"):  # Default "Admin" if not provided
-    response = mta.callFunction('botpython', 'setAdmin', player_name, acl_name)
+    response = mta.callFunction(resourceconfig, 'setAdmin', player_name, acl_name)
     await ctx.send(response[0] if isinstance(response, list) and response else f"⚠️ Failed to set admin for {player_name}.")
 
 # 2️⃣ **Remove Admin**
 @bot.command(name='removeadmin')
 @is_admin()
 async def remove_admin(ctx, player_name: str, acl_name: str = "Admin"):  # Default "Admin" if not provided
-    response = mta.callFunction('botpython', 'RemoveAdmin', player_name, acl_name)
+    response = mta.callFunction(resourceconfig, 'RemoveAdmin', player_name, acl_name)
     await ctx.send(response[0] if isinstance(response, list) and response else f"⚠️ Failed to remove admin from {player_name}.")
 
 
@@ -290,7 +309,7 @@ async def get_player_ip(ctx, player_name: str):
         await ctx.send("⚠️ Please provide the player's name. Usage: !getip <player_name>")
         return
     
-    response = mta.callFunction('botpython', 'getPlayerIPs', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerIPs', player_name)
 
     # Debugging: Print raw response
     print(f"DEBUG: getPlayerIPs({player_name}) returned: {response}")
@@ -307,7 +326,7 @@ async def get_player_serial(ctx, player_name: str = None):
         await ctx.send("⚠️ Please provide the player's name. Usage: !getserial <player_name>")
         return
 
-    response = mta.callFunction('botpython', 'getPlayerSerials', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerSerials', player_name)
 
 
     if response and response[0]:  # Ensure response is valid
@@ -322,11 +341,75 @@ async def get_player_account(ctx, player_name: str):
         await ctx.send("⚠️ Please provide the player's name. Usage: !getaccount <player_name>")
         return
     
-    response = mta.callFunction('botpython', 'getPlayerAccountName', player_name)
+    response = mta.callFunction(resourceconfig, 'getPlayerAccountName', player_name)
     if response:
         await ctx.send(f"👤 Account of {player_name}: {response[0]}")
     else:
         await ctx.send(f"⚠️ Failed to retrieve account name for player {player_name}.")
+
+
+@bot.command(name='startresource')
+@commands.has_role('Admin')
+async def start_resource(ctx, resource_name: str):
+    if not resource_name:
+        await ctx.send("⚠️ Please provide the resource name. Usage: !startresource <resource_name>")
+        return
+
+    try:
+        # Call the MTA function to start the resource
+        response = mta.callFunction(resourceconfig, 'startResources', resource_name)
+
+        # If response is an empty string or None, treat it as failure
+        if not response:
+            await ctx.send(f"⚠️ Failed to start resource '{resource_name}'. No valid response received.")
+        else:
+            await ctx.send(f"✅ Resource '{resource_name}' started successfully!")
+    except Exception as e:
+        # If something goes wrong in the process, send an error message
+        await ctx.send(f"An unexpected error occurred: {str(e)}")
+# Command: !stopresource <resource_name>
+@bot.command(name='stopresource')
+@commands.has_role('Admin')
+async def stop_resource(ctx, resource_name: str):
+    if not resource_name:
+        await ctx.send("⚠️ Please provide the resource name. Usage: !stopresource <resource_name>")
+        return
+    
+    try:
+        # Call the MTA function to stop the resource
+        response = mta.callFunction(resourceconfig, 'stopResources', resource_name)
+
+        # If the response is None or empty, treat it as failure
+        if not response:
+            await ctx.send(f"⚠️ Failed to stop resource '{resource_name}'. No valid response received.")
+        else:
+            await ctx.send(f"✅ Resource '{resource_name}' stopped successfully!")
+    except Exception as e:
+        # If something goes wrong in the process, send an error message
+        await ctx.send(f"An unexpected error occurred: {str(e)}")
+
+@bot.command(name='getresourceState')
+@commands.has_role('Admin')
+async def get_resource_state(ctx, resource_name: str):
+    if not resource_name:
+        await ctx.send("⚠️ Please provide the resource name. Usage: !getresourceState <resource_name>")
+        return
+    
+    try:
+        # Call the MTA function to get the resource state
+        response = mta.callFunction(resourceconfig, 'getResourceStated', resource_name)
+        
+        # Check if the response is a valid state and it's a list with at least one item
+        if response and isinstance(response, list) and len(response) > 0:
+            # Get the state as a string (remove the list brackets)
+            state = response[0]
+            await ctx.send(f"✅ The state of resource '{resource_name}' is: {state}")
+        else:
+            await ctx.send(f"⚠️ Failed to get the state of resource '{resource_name}'. Error: {response}")
+    
+    except Exception as e:
+        # Handle unexpected errors
+        await ctx.send(f"An unexpected error occurred: {str(e)}")
 
 CHANNEL_ID = 1098574958021595216  # ID القناة في Discord
 # إنشاء سيرفر Flask للاستماع إلى رسائل MTA
@@ -340,6 +423,7 @@ async def send_to_discord(sender, message):
         await channel.send(f"📝 {sender}: {message}")
     else:
         print("⚠️ Error: Could not find the Discord channel!")
+
 
 @app.route('/chat', methods=['POST'])
 def receive_chat():
