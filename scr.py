@@ -21,6 +21,7 @@ hostconfig = config['MTA']['host']
 portconfig = int(config['MTA']['port'])
 hostconfig = config['MTA']['host']
 resourceconfig = config['MTA']['resource']
+tokenconfig = config['MTA']['bottoken']
 
 
 
@@ -467,4 +468,4 @@ print(response.text)
 
 # =======================================================================
 
-bot.run('')
+bot.run(tokenconfig)
