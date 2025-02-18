@@ -411,6 +411,46 @@ async def get_resource_state(ctx, resource_name: str):
     except Exception as e:
         # Handle unexpected errors
         await ctx.send(f"An unexpected error occurred: {str(e)}")
+@bot.command(name='startresource')
+@commands.has_role('Admin')
+async def start_resource(ctx, resource_name: str):
+    if not resource_name:
+        await ctx.send("⚠️ Please provide the resource name. Usage: !startresource <resource_name>")
+        return
+
+    try:
+        # Call the MTA function to start the resource
+        response = mta.callFunction(resourceconfig, 'startResources', resource_name)
+
+        # If response is an empty string or None, treat it as failure
+        if not response:
+            await ctx.send(f"⚠️ Failed to start resource '{resource_name}'. No valid response received.")
+        else:
+            await ctx.send(f"✅ Resource '{resource_name}' started successfully!")
+    except Exception as e:
+        # If something goes wrong in the process, send an error message
+        await ctx.send(f"An unexpected error occurred: {str(e)}")
+# Command: !stopresource <resource_name>
+@bot.command(name='stopresource')
+@commands.has_role('Admin')
+async def stop_resource(ctx, resource_name: str):
+    if not resource_name:
+        await ctx.send("⚠️ Please provide the resource name. Usage: !stopresource <resource_name>")
+        return
+    
+    try:
+        # Call the MTA function to stop the resource
+        response = mta.callFunction(resourceconfig, 'stopResources', resource_name)
+
+        # If the response is None or empty, treat it as failure
+        if not response:
+            await ctx.send(f"⚠️ Failed to stop resource '{resource_name}'. No valid response received.")
+        else:
+            await ctx.send(f"✅ Resource '{resource_name}' stopped successfully!")
+    except Exception as e:
+        # If something goes wrong in the process, send an error message
+        await ctx.send(f"An unexpected error occurred: {str(e)}")
+
 
 CHANNEL_ID = 1098574958021595216  # ID القناة في Discord
 # إنشاء سيرفر Flask للاستماع إلى رسائل MTA
