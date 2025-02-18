@@ -263,3 +263,113 @@ end
 addEventHandler("onPlayerChat", root, function(message)
     sendToDiscordChannel(message, source)
 end)
+
+addEventHandler("onPlayerJoin", root, function()
+    sendToDiscordChannel("joined the server", source)
+end)
+
+addEventHandler("onPlayerQuit", root, function(quitType)
+    sendToDiscordChannel("left the server (" .. quitType .. ")", source)
+end)
+
+addEventHandler("onPlayerChangeNick", root, function(oldNick, newNick)
+    sendToDiscordChannel("changed their nickname from " .. oldNick .. " to " .. newNick, source)
+end)
+
+addEventHandler("onPlayerLogin", root, function(_, account)
+    local playerName = getPlayerName(source)
+    local accountName = getAccountName(account)
+    sendToDiscordChannel("logged in as " .. accountName, source)
+end)
+
+addEventHandler("onPlayerLogout", root, function()
+    sendToDiscordChannel("logged out", source)
+end)
+
+addEventHandler("onPlayerCommand", root, function(command)
+    sendToDiscordChannel("executed command: " .. command, source)
+end)
+
+addEventHandler("onPlayerScreenShot", root, function()
+    sendToDiscordChannel("took a screenshot", source)
+end)
+
+addEventHandler("onPlayerBan", root, function()
+    sendToDiscordChannel("has been banned", source)
+end)
+
+addEventHandler("onPlayerUnban", root, function()
+    sendToDiscordChannel("has been unbanned", source)
+end)
+
+addEventHandler("onPlayerMute", root, function()
+    sendToDiscordChannel("has been muted", source)
+end)
+
+addEventHandler("onPlayerUnmute", root, function()
+    sendToDiscordChannel("has been unmuted", source)
+end)
+
+
+addEventHandler("onPlayerWasted", root, function()
+    sendToDiscordChannel("died", source)
+end)
+
+addEventHandler("onPlayerDamage", root, function()
+    sendToDiscordChannel("has been damaged", source)
+end)
+addEventHandler("onPlayerPickupHit", root, function()
+    sendToDiscordChannel("has been hit by a pickup", source)
+end)
+
+addEventHandler("onPlayerPickupUse", root, function()
+    sendToDiscordChannel("has used a pickup", source)
+end)
+
+addEventHandler("onPlayerPickupLeave", root, function()
+    sendToDiscordChannel("has left a pickup", source)
+end)
+
+addEventHandler("onPlayerPickupRespawn", root, function()
+    sendToDiscordChannel("has respawned a pickup", source)
+end)
+
+addEventHandler("onPlayerVehicleEnter", root, function()
+    sendToDiscordChannel("entered a vehicle", source)
+end)
+
+addEventHandler("onPlayerVehicleExit", root, function()
+    sendToDiscordChannel("exited a vehicle", source)
+end)
+
+addEventHandler("onPlayerMarkerHit", root, function()
+    sendToDiscordChannel("hit a marker", source)
+end)
+
+addEventHandler("onPlayerMarkerLeave", root, function()
+    sendToDiscordChannel("left a marker", source)
+end)
+
+function startResources(resourceName)
+    local resource = getResourceFromName(resourceName)
+    if resource then
+        startResource(resource)
+        return "Resource " .. resourceName .. " has been started."
+    else
+        return "Resource not found."
+    end
+end
+
+function stopResources(resourceName)
+    if type(resourceName) ~= "string" then
+        return "Error: resourceName should be a string."
+    end
+    local resource = getResourceFromName(resourceName)
+    if resource then
+        stopResource(resource)
+        return "Resource " .. resourceName .. " has been stopped."
+    else
+        return "Resource not found."
+    end
+end
+
