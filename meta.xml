@@ -21,4 +21,5 @@
     <export function="getPlayerAccountName" http="true"  />
      <export function="stopResources" http="true"  />
     <export function="startResources" http="true"  />
+    <export function="getPlayerInServer" http="true"  />
 </meta>
