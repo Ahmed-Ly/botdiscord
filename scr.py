@@ -494,6 +494,53 @@ def receive_chat():
         return jsonify({"error": "Internal Server Error"}), 500
 
 ##############################################
+async def update_bot_status():
+    await bot.wait_until_ready()  # انتظار حتى يصبح البوت جاهزًا
+    while not bot.is_closed():
+        try:
+            # استدعاء الدالة من سيرفر MTA
+            response = mta.callFunction("botpython", "getPlayerInServer")
+            
+            if response is None:
+                print("DEBUG: لم يتم استلام استجابة من callFunction")
+                players_count = "???"  # قيمة افتراضية في حالة الفشل
+            else:
+                # طباعة الاستجابة للتحقق من صحتها
+                print(f"DEBUG: الاستجابة المستلمة من MTA: {response}")
+
+                # التحقق مما إذا كانت الاستجابة نصية أو JSON فارغ
+                if isinstance(response, str):
+                    try:
+                        response = json.loads(response)  # محاولة تحويل النص إلى JSON
+                    except json.JSONDecodeError:
+                        print("DEBUG: فشل تحليل JSON. الاستجابة ليست بتنسيق JSON صالح.")
+                        response = None
+
+                # استخراج العدد من الاستجابة إذا كانت قائمة أو عدد صحيح
+                if isinstance(response, list) and response:
+                    players_count = response[0]
+                elif isinstance(response, (int, str)):
+                    players_count = response
+                else:
+                    players_count = "???"
+
+                print(f"DEBUG: عدد اللاعبين المستلم: {players_count}")
+
+            # تحديث الحالة لتظهر عدد اللاعبين
+            activity = discord.Activity(
+                type=discord.ActivityType.playing, 
+                name=f"Playing now {players_count} players"
+            )
+            await bot.change_presence(activity=activity)
+
+        except Exception as e:
+            print(f"DEBUG: حدث استثناء أثناء تحديث الحالة: {e}")
+
+        await asyncio.sleep(30)
+
+
+
+#############################################
 @bot.event
 async def on_ready():
     print(f'✅ Bot connected as {bot.user}')
