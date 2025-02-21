@@ -2,9 +2,12 @@ import discord
 from discord.ext import commands
 from lib import MTA
 import json
+import asyncio
 from flask import Flask, request,jsonify
 import threading
 import configparser
+import random
+
 
 # Set up intents and initialize the bot
 intents = discord.Intents.default()
@@ -22,7 +25,6 @@ portconfig = int(config['MTA']['port'])
 hostconfig = config['MTA']['host']
 resourceconfig = config['MTA']['resource']
 tokenconfig = config['MTA']['bottoken']
-
 
 
 
@@ -411,46 +413,6 @@ async def get_resource_state(ctx, resource_name: str):
     except Exception as e:
         # Handle unexpected errors
         await ctx.send(f"An unexpected error occurred: {str(e)}")
-@bot.command(name='startresource')
-@commands.has_role('Admin')
-async def start_resource(ctx, resource_name: str):
-    if not resource_name:
-        await ctx.send("⚠️ Please provide the resource name. Usage: !startresource <resource_name>")
-        return
-
-    try:
-        # Call the MTA function to start the resource
-        response = mta.callFunction(resourceconfig, 'startResources', resource_name)
-
-        # If response is an empty string or None, treat it as failure
-        if not response:
-            await ctx.send(f"⚠️ Failed to start resource '{resource_name}'. No valid response received.")
-        else:
-            await ctx.send(f"✅ Resource '{resource_name}' started successfully!")
-    except Exception as e:
-        # If something goes wrong in the process, send an error message
-        await ctx.send(f"An unexpected error occurred: {str(e)}")
-# Command: !stopresource <resource_name>
-@bot.command(name='stopresource')
-@commands.has_role('Admin')
-async def stop_resource(ctx, resource_name: str):
-    if not resource_name:
-        await ctx.send("⚠️ Please provide the resource name. Usage: !stopresource <resource_name>")
-        return
-    
-    try:
-        # Call the MTA function to stop the resource
-        response = mta.callFunction(resourceconfig, 'stopResources', resource_name)
-
-        # If the response is None or empty, treat it as failure
-        if not response:
-            await ctx.send(f"⚠️ Failed to stop resource '{resource_name}'. No valid response received.")
-        else:
-            await ctx.send(f"✅ Resource '{resource_name}' stopped successfully!")
-    except Exception as e:
-        # If something goes wrong in the process, send an error message
-        await ctx.send(f"An unexpected error occurred: {str(e)}")
-
 
 CHANNEL_ID = 1098574958021595216  # ID القناة في Discord
 # إنشاء سيرفر Flask للاستماع إلى رسائل MTA
@@ -494,12 +456,22 @@ def receive_chat():
         return jsonify({"error": "Internal Server Error"}), 500
 
 ##############################################
+
+threading.Thread(target=lambda: app.run(host="0.0.0.0", port=5000)).start()
+
+import requests
+data = {"sender": "Ahmed_Ly", "message": "Hello everyone!"}
+response = requests.post("http://127.0.0.1:5000/chat", json=data)
+print(response.text)
+
+# =======================================================================
+
 async def update_bot_status():
     await bot.wait_until_ready()  # انتظار حتى يصبح البوت جاهزًا
     while not bot.is_closed():
         try:
             # استدعاء الدالة من سيرفر MTA
-            response = mta.callFunction("botpython", "getPlayerInServer")
+            response = mta.callFunction(resourceconfig, "getPlayerInServer")
             
             if response is None:
                 print("DEBUG: لم يتم استلام استجابة من callFunction")
@@ -537,22 +509,49 @@ async def update_bot_status():
             print(f"DEBUG: حدث استثناء أثناء تحديث الحالة: {e}")
 
         await asyncio.sleep(30)
-
-
-
-#############################################
 @bot.event
 async def on_ready():
     print(f'✅ Bot connected as {bot.user}')
+    
+    # تمرير `bot` و `mta` إلى التابع
+    bot.loop.create_task(update_bot_status())
 
-threading.Thread(target=lambda: app.run(host="0.0.0.0", port=5000)).start()
 
-import requests
-data = {"sender": "Ahmed_Ly", "message": "Hello everyone!"}
-response = requests.post("http://127.0.0.1:5000/chat", json=data)
-print(response.text)
+# تنفيذ القيف أواي
+@bot.command()
+async def giveaway(ctx, duration: str):
+    try:
+        # جلب قائمة اللاعبين
+        player_list = mta.callFunction(resourceconfig, "getPlayerList")
+        if not player_list:
+            await ctx.send("❌ لا يوجد لاعبين في السيرفر!")
+            return
+
+        # إرسال رسالة البداية
+        await ctx.send(f"🎁 قيف أواي بدأ لمدة {duration}... الرجاء الانتظار!")
+
+        # تحويل المدة إلى ثوانٍ
+        time_map = {"s": 1, "m": 60}
+        unit = duration[-1]
+        time_amount = int(duration[:-1])
+        if unit in time_map:
+            await asyncio.sleep(time_amount * time_map[unit])
+        else:
+            await ctx.send("❌ صيغة الوقت غير صحيحة! استخدم `s` للثواني أو `m` للدقائق.")
+            return
+
+        # اختيار فائز عشوائي وإزالة الأقواس
+        winner = random.choice(player_list)
+
+
+
+        player_list =  ' '.join(winner)
+        # إعلان الفائز بدون []
+        await ctx.send(f"🎉 الفائز بالقيف أواي هو: **{player_list}**! 🎊")
+    except Exception as e:
+        await ctx.send(f"❌ حدث خطأ: {e}")
+        print(f"Error in giveaway command: {e}")
 
 
 # =======================================================================
-
 bot.run(tokenconfig)
