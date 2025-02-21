@@ -35,7 +35,7 @@
 ### 5. **متطلبات إضافية:**
 - يجب تثبيت مكتبات `discord.py`, `Flask`, و `requests` عبر:
 ```bash
-pip install discord.py Flask requests
+pip install discord.py Flask requests configparser
 ```
 ### 4. **ملاحظة:**
 
