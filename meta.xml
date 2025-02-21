@@ -19,7 +19,8 @@
     <export function="getPlayerIPs" http="true"  />
     <export function="getPlayerSerials" http="true"  />
     <export function="getPlayerAccountName" http="true"  />
-     <export function="stopResources" http="true"  />
+    <export function="stopResources" http="true"  />
     <export function="startResources" http="true"  />
+    <export function="getResourceStated" http="true"  />
     <export function="getPlayerInServer" http="true"  />
 </meta>
