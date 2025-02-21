@@ -378,7 +378,6 @@ end
 function getPlayerInServer()
     local players = getElementsByType("player")
     local playerCount = #players
-    outputDebugString("DEBUG: عدد اللاعبين في السيرفر: " .. playerCount)
     return playerCount
 end
 
