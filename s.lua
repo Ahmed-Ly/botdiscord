@@ -373,6 +373,8 @@ function stopResources(resourceName)
     end
 end
 
+
+
 function getPlayerInServer()
     local players = getElementsByType("player")
     local playerCount = #players
