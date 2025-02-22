@@ -1,0 +1,4 @@
+discordpy 
+Flask 
+requests 
+configparser
