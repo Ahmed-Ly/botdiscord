@@ -7,7 +7,9 @@ from flask import Flask, request,jsonify
 import threading
 import configparser
 import random
-
+# import os
+# tokenconfig = os.getenv("DISCORD_BOT_TOKEN")  # Ensure this variable is set in Render's environment
+# print(tokenconfig) if you want using render
 
 # Set up intents and initialize the bot
 intents = discord.Intents.default()
