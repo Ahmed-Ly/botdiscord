@@ -7,9 +7,7 @@ from flask import Flask, request,jsonify
 import threading
 import configparser
 import random
-# import os
-# tokenconfig = os.getenv("DISCORD_BOT_TOKEN")  # Ensure this variable is set in Render's environment
-# print(tokenconfig) if you want using render
+
 
 # Set up intents and initialize the bot
 intents = discord.Intents.default()
@@ -27,7 +25,7 @@ portconfig = int(config['MTA']['port'])
 hostconfig = config['MTA']['host']
 resourceconfig = config['MTA']['resource']
 tokenconfig = config['MTA']['bottoken']
-
+channelconfig = int(config['MTA']['channel'])
 
 
 # Initialize your MTA object with your server credentials
@@ -37,11 +35,19 @@ if mta:
 else:
     print("❌ Failed to connect to MTA server.")
 
+  # ضع هنا الـ ID الخاص بالقناة
+
+# دالة تحقق عامة للتأكد من أن الأوامر تعمل فقط في القناة المحددة
+def in_allowed_channel(ctx):
+    return ctx.channel.id == channelconfig
 # =======================================================================
 # Command: !players
 @bot.command(name='players')
 @commands.has_role('Admin')
 async def get_players(ctx):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     response = mta.callFunction(resourceconfig, 'getPlayerList')
     if response:
         # Flatten the nested list and join into a string
@@ -56,6 +62,9 @@ async def get_players(ctx):
 @bot.command(name='kick')
 @commands.has_role('Admin')
 async def kick(ctx, player_name: str = None, reason: str = None):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None or reason is None:
         await ctx.send("⚠️ Please provide both the player name and a reason. Usage: !kick <player_name> <reason>")
         return
@@ -70,6 +79,9 @@ async def kick(ctx, player_name: str = None, reason: str = None):
 @bot.command(name='ban')
 @commands.has_role('Admin')
 async def ban(ctx, player_name: str = None, reason: str = None):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None or reason is None:
         await ctx.send("⚠️ Please provide both the player name and a reason. Usage: !ban <player_name> <reason>")
         return
@@ -84,6 +96,9 @@ async def ban(ctx, player_name: str = None, reason: str = None):
 @bot.command(name='playersmoney')
 @commands.has_role('Admin')
 async def get_players_money(ctx):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     response = mta.callFunction(resourceconfig, 'getPlayersMoney')
     # If the response is a list with one element that is a dict, extract the dict
     if isinstance(response, list) and len(response) == 1 and isinstance(response[0], dict):
@@ -101,6 +116,9 @@ async def get_players_money(ctx):
 @bot.command(name='givemoney')
 @commands.has_role('Admin')
 async def give_money(ctx, player_name: str = None, money: int = None):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None or money is None:
         await ctx.send("⚠️ Please provide both the player's name and money amount. Usage: !givemoney <player_name> <money>")
         return
@@ -117,6 +135,9 @@ async def give_money(ctx, player_name: str = None, money: int = None):
 @bot.command(name='setpos')
 @commands.has_role('Admin')
 async def set_player_pos(ctx, player_name: str, x: float, y: float, z: float):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None or x is None or y is None or z is None:
         await ctx.send("⚠️ Please provide the player's name and coordinates. Usage: !setpos <player_name> <x> <y> <z>")
         return
@@ -132,6 +153,9 @@ async def set_player_pos(ctx, player_name: str, x: float, y: float, z: float):
 @bot.command(name='getpos')
 @commands.has_role('Admin')
 async def get_player_pos(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getpos <player_name>")
         return
@@ -147,6 +171,9 @@ async def get_player_pos(ctx, player_name: str):
 @bot.command(name='getskin')
 @commands.has_role('Admin')
 async def get_player_skin(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getskin <player_name>")
         return
@@ -162,6 +189,9 @@ async def get_player_skin(ctx, player_name: str):
 @bot.command(name='setskin')
 @commands.has_role('Admin')
 async def set_player_skin(ctx, player_name: str, skin_id: int):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if player_name is None or skin_id is None:
         await ctx.send("⚠️ Please provide both the player's name and the skin ID. Usage: !setskin <player_name> <skin_id>")
         return
@@ -176,6 +206,9 @@ async def set_player_skin(ctx, player_name: str, skin_id: int):
 @bot.command(name='givecar')
 @commands.has_role('Admin')  # Only users with the "Admin" role can use this command
 async def give_car(ctx, player_name: str, car_id: int):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     # Check if both player name and car ID are provided
     if player_name is None or car_id is None:
         await ctx.send("⚠️ Please provide both the player's name and car ID. Usage: !givecar <player_name> <car_id>")
@@ -194,6 +227,9 @@ async def give_car(ctx, player_name: str, car_id: int):
 @bot.command(name='getcar')
 @commands.has_role('Admin')  # Only users with the "Admin" role can use this command
 async def get_car(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     # Check if player name is provided
     if not player_name:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getcar <player_name>")
@@ -212,6 +248,9 @@ async def get_car(ctx, player_name: str):
 @bot.command(name='warpto')
 @commands.has_role('Admin')  # Only users with the "Admin" role can use this command
 async def warp_to(ctx, target_player_name: str, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     # Check if both player names are provided
     if not target_player_name or not player_name:
         await ctx.send("⚠️ Please provide both the target player's name and the player name. Usage: !warpto <target_player_name> <player_name>")
@@ -230,6 +269,9 @@ async def warp_to(ctx, target_player_name: str, player_name: str):
 @bot.command(name='getweapon')
 @commands.has_role('Admin')  # Only users with the "Admin" role can use this command
 async def get_weapon(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     # Check if player name is provided
     if not player_name:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getweapon <player_name>")
@@ -260,6 +302,9 @@ async def get_weapon(ctx, player_name: str):
 @bot.command(name='gethealth')
 @commands.has_role('Admin')  # Only users with the "Admin" role can use this command
 async def get_health(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     # Check if player name is provided
     if not player_name:
         await ctx.send("⚠️ Please provide the player's name. Usage: !gethealth <player_name>")
@@ -310,6 +355,9 @@ async def remove_admin(ctx, player_name: str, acl_name: str = "Admin"):  # Defau
 @bot.command(name='getip')
 @commands.has_role('Admin')
 async def get_player_ip(ctx, player_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if not player_name:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getip <player_name>")
         return
@@ -327,6 +375,9 @@ async def get_player_ip(ctx, player_name: str):
 @bot.command(name='getserial')
 @commands.has_role('Admin')
 async def get_player_serial(ctx, player_name: str = None):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if not player_name:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getserial <player_name>")
         return
@@ -342,7 +393,10 @@ async def get_player_serial(ctx, player_name: str = None):
 @bot.command(name='getaccount')
 @commands.has_role('Admin')
 async def get_player_account(ctx, player_name: str):
-    if  player_name is None:
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
+    if player_name is None:
         await ctx.send("⚠️ Please provide the player's name. Usage: !getaccount <player_name>")
         return
     
@@ -356,6 +410,9 @@ async def get_player_account(ctx, player_name: str):
 @bot.command(name='startresource')
 @commands.has_role('Admin')
 async def start_resource(ctx, resource_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if not resource_name:
         await ctx.send("⚠️ Please provide the resource name. Usage: !startresource <resource_name>")
         return
@@ -376,6 +433,9 @@ async def start_resource(ctx, resource_name: str):
 @bot.command(name='stopresource')
 @commands.has_role('Admin')
 async def stop_resource(ctx, resource_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if not resource_name:
         await ctx.send("⚠️ Please provide the resource name. Usage: !stopresource <resource_name>")
         return
@@ -396,6 +456,9 @@ async def stop_resource(ctx, resource_name: str):
 @bot.command(name='getresourceState')
 @commands.has_role('Admin')
 async def get_resource_state(ctx, resource_name: str):
+    if not in_allowed_channel(ctx):  # التحقق يدويًا بدلاً من @check
+        await ctx.send("⚠️ هذا الأمر مسموح فقط في القناة المحددة.")
+        return
     if not resource_name:
         await ctx.send("⚠️ Please provide the resource name. Usage: !getresourceState <resource_name>")
         return
@@ -557,3 +620,4 @@ async def giveaway(ctx, duration: str):
 
 # =======================================================================
 bot.run(tokenconfig)
+
