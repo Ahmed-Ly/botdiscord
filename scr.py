@@ -524,10 +524,7 @@ def receive_chat():
 
 threading.Thread(target=lambda: app.run(host="0.0.0.0", port=5000)).start()
 
-import requests
-data = {"sender": "Ahmed_Ly", "message": "Hello everyone!"}
-response = requests.post("http://127.0.0.1:5000/chat", json=data)
-print(response.text)
+
 
 # =======================================================================
 
