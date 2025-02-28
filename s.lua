@@ -381,3 +381,76 @@ function getPlayerInServer()
     return playerCount
 end
 
+local githubRepo = "Ahmed-Ly/botdiscord"
+local githubBaseURL = "https://raw.githubusercontent.com/" .. githubRepo .. "/main/"
+local githubVersionFile = githubBaseURL .. "var.txt"
+local localVersionFile = "var.txt"
+
+local filesToDownload = {
+    "meta.xml",
+    "s.lua",
+    "var.txt"
+}
+
+function downloadFile(fileName)
+    local fileURL = githubBaseURL .. fileName
+    fetchRemote(fileURL, function(data, err)
+        if err ~= 0 or not data then
+            outputChatBox("❌ فشل تحميل " .. fileName, root, 255, 0, 0)
+            return
+        end
+        if fileExists(fileName) then fileDelete(fileName) end
+        local file = fileCreate(fileName)
+        if file then
+            fileWrite(file, data)
+            fileClose(file)
+            outputChatBox("✅ تم تحديث " .. fileName, root, 0, 255, 0)
+        end
+    end)
+end
+
+function checkUpdateAndDownload()
+    fetchRemote(githubVersionFile, function(data, err)
+        if err ~= 0 or not data then
+            outputChatBox("❌ فشل في جلب التحديث من GitHub", root, 255, 0, 0)
+            return
+        end
+        
+        local latestVersion = tostring(data):gsub("^%s*(.-)%s*$", "%1")
+        local localVersion = "0.0"
+        
+        if fileExists(localVersionFile) then
+            local file = fileOpen(localVersionFile)
+            if file then
+                localVersion = fileRead(file, fileGetSize(file)):gsub("^%s*(.-)%s*$", "%1")
+                fileClose(file)
+            end
+        end
+        
+        if localVersion ~= latestVersion then
+            outputChatBox("🔄 إصدار جديد متاح! (آخر إصدار: " .. latestVersion .. " - إصدارك: " .. localVersion .. ")", root, 255, 165, 0)
+            outputChatBox("⚠️ جارِ تنزيل التحديث...", root, 255, 165, 0)
+            
+            for _, fileName in ipairs(filesToDownload) do
+                downloadFile(fileName)
+            end
+            
+            local file = fileCreate(localVersionFile)
+            if file then
+                fileWrite(file, latestVersion)
+                fileClose(file)
+            end
+            
+            outputChatBox("✅ تم التحديث بنجاح!", root, 0, 255, 0)
+        else
+            outputChatBox("✅ لديك أحدث إصدار.", root, 0, 255, 0)
+        end
+    end)
+end
+
+
+
+checkUpdateAndDownload()
+
+
+
