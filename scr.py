@@ -21,10 +21,9 @@ FILES_TO_DOWNLOAD = [
     "README.md",
     "config.ini",
     "lib.py",
-    "meta.xml",
     "requirements.txt",
-    "s.lua",
-    "scr.py"
+    "scr.py",
+    "updata.txt"
 ]
 
 def download_file(file_name):
