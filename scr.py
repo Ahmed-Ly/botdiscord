@@ -556,7 +556,7 @@ async def update_bot_status():
                 elif isinstance(response, (int, str)):
                     players_count = response
                 else:
-                    players_count = "???"
+                    players_count = "0"
 
                 print(f"DEBUG: عدد اللاعبين المستلم: {players_count}")
 
