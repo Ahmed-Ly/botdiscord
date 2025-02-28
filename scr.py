@@ -7,6 +7,82 @@ from flask import Flask, request,jsonify
 import threading
 import configparser
 import random
+import requests
+import os
+
+# إعدادات المستودع
+GITHUB_REPO = "Ahmed-Ly/botdiscord"
+GITHUB_BASE_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/"
+GITHUB_VERSION_FILE = f"{GITHUB_BASE_URL}updata.txt"
+LOCAL_VERSION_FILE = "updata.txt"
+
+# قائمة الملفات التي يجب تحديثها
+FILES_TO_DOWNLOAD = [
+    "README.md",
+    "config.ini",
+    "lib.py",
+    "meta.xml",
+    "requirements.txt",
+    "s.lua",
+    "scr.py"
+]
+
+def download_file(file_name):
+    """تحميل الملف من GitHub واستبداله محليًا"""
+    file_url = f"{GITHUB_BASE_URL}{file_name}"
+    
+    try:
+        response = requests.get(file_url)
+        if response.status_code == 200:
+            with open(file_name, "wb") as file:
+                file.write(response.content)
+            print(f"✅ تم تحديث {file_name}")
+        else:
+            print(f"❌ فشل تحميل {file_name} (خطأ {response.status_code})")
+    except Exception as e:
+        print(f"❌ خطأ أثناء تحميل {file_name}: {e}")
+
+def check_update_and_download():
+    try:
+        # جلب الإصدار من GitHub
+        response = requests.get(GITHUB_VERSION_FILE)
+        if response.status_code != 200:
+            print("❌ فشل في جلب التحديث من GitHub")
+            return
+        
+        latest_version = response.text.strip()
+
+        # قراءة الإصدار المحلي
+        try:
+            with open(LOCAL_VERSION_FILE, "r") as f:
+                local_version = f.read().strip()
+        except FileNotFoundError:
+            local_version = "0.0"  # في حال عدم وجود ملف الإصدار
+
+        # مقارنة الإصدارات
+        if local_version != latest_version:
+            print(f"🔄 إصدار جديد متاح! (آخر إصدار: {latest_version} - إصدارك: {local_version})")
+            print("⚠️ جارِ تنزيل التحديث...")
+
+            # تحميل كل الملفات
+            for file_name in FILES_TO_DOWNLOAD:
+                download_file(file_name)
+
+            # تحديث ملف الإصدار
+            with open(LOCAL_VERSION_FILE, "w") as f:
+                f.write(latest_version)
+
+            print("✅ تم التحديث بنجاح!")
+
+        else:
+            print("✅ لديك أحدث إصدار.")
+
+    except Exception as e:
+        print(f"❌ حدث خطأ: {e}")
+
+# تشغيل التحقق عند بدء السكربت
+check_update_and_download()
+
 
 
 # Set up intents and initialize the bot
