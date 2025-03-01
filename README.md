@@ -51,7 +51,12 @@ pip install discord.py Flask requests configparser
 
 ### 5. **خلاصة:**
 -السكريبت يتيح لك التحكم الكامل في خادم MTA:SA باستخدام Discord، ويضيف مرونة في التفاعل بين الخوادم عبر API باستخدام Flask.
+
 -حسابي علي ديسكورد ahmedly
+
+
+https://wiki.multitheftauto.com/wiki/Bot_Discord
+
 
 
 
