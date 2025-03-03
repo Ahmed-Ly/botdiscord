@@ -453,4 +453,26 @@ end
 checkUpdateAndDownload()
 
 
+function getServerStats()
+    local stats = {
+        players = getPlayerCount(),
+        maxplayers = getMaxPlayers(),
+        resources = getRunningResources()
+    }
+    return stats
+end
+
+function getRunningResources()
+    local resourceNames = {}
+    for _, resource in ipairs(getResources()) do
+        if getResourceState(resource) == "running" then
+            table.insert(resourceNames, getResourceName(resource))
+        end
+    end
+    return table.concat(resourceNames, ", ")
+end
+
+
+
+
 
