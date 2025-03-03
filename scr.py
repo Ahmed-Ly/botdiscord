@@ -690,6 +690,29 @@ async def giveaway(ctx, duration: str):
         print(f"Error in giveaway command: {e}")
 
 
+@bot.command()
+async def status(ctx):
+    """يجلب حالة سيرفر MTA ويعرضها في Embed"""
+    try:
+        stats = mta.callFunction(resourceconfig, "getServerStats")  # استدعاء دالة MTA
+        
+        if stats and isinstance(stats, list):  # تأكد أن البيانات قائمة
+            stats = stats[0]  # استخراج القاموس من القائمة
+            
+            embed = discord.Embed(title="🔹 MTA Server Status", color=discord.Color.blue())
+            embed.add_field(name="👥 عدد اللاعبين", value=stats.get("players", "غير متاح"), inline=True)
+            embed.add_field(name="🖥️ أقصى عدد لاعبين", value=stats.get("maxplayers", "غير متاح"), inline=True)
+            embed.add_field(name="🕹️ الموارد المشغّلة", value=stats.get("resources", "غير متاح"), inline=False)
+            embed.set_footer(text="MTA Server Status Bot")
+
+            await ctx.send(embed=embed)
+        else:
+            await ctx.send("❌ فشل في جلب بيانات السيرفر.")
+
+    except Exception as e:
+        await ctx.send(f"❌ حدث خطأ: {e}")
+
+
 # =======================================================================
 bot.run(tokenconfig)
 
