@@ -1,5 +1,5 @@
 <meta>
-	<info name ="bot discord" description="bot discord" version="1.8.0" type="script" author="Ahmed Ly"/>
+	<info name ="bot discord" description="bot discord" version="1.9.0" type="script" author="Ahmed Ly"/>
     <script src="s.lua" type="server" />
     <export function="getPlayerList" http="true"  />
     <export function="kickPlayerByName" http="true"  />
