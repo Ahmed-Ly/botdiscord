@@ -56,7 +56,7 @@ pip install discord.py Flask requests configparser
 
 
 https://wiki.multitheftauto.com/wiki/Bot_Discord
-
+https://botdiscordmtasan.netlify.app/
 
 
 
