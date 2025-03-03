@@ -23,4 +23,5 @@
     <export function="startResources" http="true"  />
     <export function="getResourceStated" http="true"  />
     <export function="getPlayerInServer" http="true"  />
+    <export function="getServerStats" http="true"  />
 </meta>
