@@ -691,6 +691,7 @@ async def giveaway(ctx, duration: str):
 
 
 @bot.command()
+@commands.has_role('Admin')
 async def status(ctx):
     """يجلب حالة سيرفر MTA ويعرضها في Embed"""
     try:
