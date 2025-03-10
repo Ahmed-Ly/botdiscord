@@ -3,6 +3,28 @@ set REPO_URL=https://github.com/Ahmed-Ly/botdiscord.git
 set REPO_DIR=botdiscord
 set VENV_DIR=eee
 
+where python >nul 2>&1
+echo Checking if Python is installed or not.
+if errorlevel 1 (
+    echo Python is not installed. Please install Python first.
+    pause
+    exit /b
+) else (
+    echo Python is installed successfully.
+)
+
+where git >nul 2>&1
+echo Checking if Git is installed or not.
+if errorlevel 1 (
+    echo Git is not installed. Please install Git first.
+    pause
+    exit /b
+) else (
+    echo Git is installed successfully.
+)
+
+
+
 echo Cloning repository...
 if exist "%REPO_DIR%" (
     echo Repository folder "%REPO_DIR%" already exists. Skipping clone.
