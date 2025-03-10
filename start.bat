@@ -3,6 +3,16 @@ set REPO_URL=https://github.com/Ahmed-Ly/botdiscord.git
 set REPO_DIR=botdiscord
 set VENV_DIR=eee
 
+echo Checking Internet connection...
+ping github.com -n 1 >nul
+if errorlevel 1 (
+    echo No internet connection. Please check your connection.
+    pause
+    exit /b
+) else (
+    echo Internet connection is active.
+)
+
 where python >nul 2>&1
 echo Checking if Python is installed or not.
 if errorlevel 1 (
