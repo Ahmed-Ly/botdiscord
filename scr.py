@@ -656,6 +656,7 @@ async def on_ready():
 
 # تنفيذ القيف أواي
 @bot.command()
+@commands.has_role('Admin')
 async def giveaway(ctx, duration: str):
     try:
         # جلب قائمة اللاعبين
